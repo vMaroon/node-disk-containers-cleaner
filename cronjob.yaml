@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ${NODE_HOSTNAME}-disk-containers-janitor
+spec:
+  schedule: "0 0 */3 * *" # every 3 days on 00:00
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          nodeSelector:
+            kubernetes.io/hostname: ${NODE_HOSTNAME}
+          serviceAccountName: disk-containers-janitor
+          hostPID: true
+          hostIPC: true
+          containers:
+          - name: node-disk-containers-cleanup
+            image: quay.io/podman/stable
+            imagePullPolicy: IfNotPresent
+            securityContext:
+              privileged: true
+            command:
+            - /bin/sh
+            - -c
+            - podman system prune -a -f
+            volumeMounts:
+            - name: host
+              mountPath: "/"
+          restartPolicy: OnFailure
+          volumes:
+          - name: host
+            hostPath:
+              path: "/"
