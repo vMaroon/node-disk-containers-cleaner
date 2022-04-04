@@ -2,6 +2,12 @@
 
 This project deploys CronJobs to clean up unused container images from worker nodes' disks.
 
+Requirements:
+- kubectl
+- oc
+- curl
+- sed
+
 To deploy, run:
 ```
 ./deploy.sh
